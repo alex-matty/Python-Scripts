@@ -12,12 +12,17 @@ parser = argparse.ArgumentParser(description="""Simple tool for website director
 parser.add_argument('-u', '--url', help='URL or IP (provide protocol, \"http://\" or \"https://\"')
 parser.add_argument('-w', '--wordlist', help='Dictionary or wordlist to use for the bruteforcing')
 parser.add_argument('-x', '--extensions', help='Extensions to look for (separated by commas)')
+parser.add_argument('-o', '--output', help='Filename to save output in (Optional)')
 
 args = parser.parse_args()
 
 UserURL = args.url
 UserWordlist = args.wordlist
 UserExtensions = args.extensions
+UserOutput = args.output
+
+#Create a boolean value of the optional value
+emptyness=bool(UserOutput)
 
 #Colors, to make a pretty layout
 G = '\033[92m'  # green
@@ -42,6 +47,9 @@ print("----------------------------------------------------------------")
 print("[-] URL: " + UserURL)
 print("[-] Extensions: " + UserWordlist)
 print("[-] Wordlist: " + UserExtensions)
+if emptyness == True:
+    print ("[-] Output: " + UserOutput)
+    outputFilename= open(UserOutput, "w")
 print("----------------------------------------------------------------\n")
 
 #Open the file and check if it has comments, if not append it to the list
@@ -65,16 +73,23 @@ for element in lines:
     req = requests.head(CheckedURL, verify=False)
     req = req.status_code
     if req >= 200 and req <= 399:
-        print (Y + "Status Code: " + str(req) + W + "   " + CheckedURL)
+        if emptyness == True:
+            print (Y + "Status Code: " + str(req) + W + "   " + CheckedURL)
+            outputFilename.write(Y + "Status Code: " + str(req) + W + "   " + CheckedURL + "\n")
+        else:
+            print (Y + "Status Code: " + str(req) + W + "   " + CheckedURL)
 
     for extension in UserExtensions:
         NewURL = UserURL+"/"+element+"."+extension
         req = requests.head(NewURL, verify=False)
         req = req.status_code
         if req >= 200 and req <= 399:
-            print (Y + "Status Code: " + str(req) + W + "   " +NewURL)
+            if emptyness == True:
+                print (Y + "Status Code: " + str(req) + W + "   " + NewURL)
+                outputFilename.write(Y + "Status Code: " + str(req) + W + "   " + NewURL + "\n")
+            else:
+                print (Y + "Status Code: " + str(req) + W + "   " + NewURL)
     counter+=1
 
     #Progress bar
     print(B + "Progress: ({}".format(counter) + "/" + str(totalToCheck) + ")", end="\r")
-
